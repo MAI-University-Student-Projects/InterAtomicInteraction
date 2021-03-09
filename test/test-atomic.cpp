@@ -1,10 +1,10 @@
 #include <catch2/catch_all.hpp>
-#include "vector3D.hpp"
+#include "matrix3D.hpp"
 
 using namespace Catch::literals;
 
 //TEST_CASE(name of test case, tags for selecting what test cases to run)
-TEST_CASE("vector3D tests", "[struct][vector3D]") {
+TEST_CASE("vector3D tests", "[math][vector3D]") {
     vector3D vec_main(1.0, 1.2, 1.0);
     vector3D vec_oth(0.8, 0.4, 4.43);
     constexpr vector3D summ_const = 1.8_i + 1.6_j + 5.43_k;
@@ -38,4 +38,12 @@ TEST_CASE("vector3D tests", "[struct][vector3D]") {
         CHECK(vec_main * vec_oth == (5.71_a).margin(1e-12));
         CHECK(diff_const.getLength() == Catch::Approx(std::sqrt(12.4449)).margin(1e-12));
     }
+}
+
+TEST_CASE("matrix3D tests", "[math][Matrix3D]") {
+    constexpr matrix3D mtx3x3{ vector3D{1, 2, 3}, vector3D{4, 5, 6}, vector3D{7, 8, 9} };
+    constexpr vector3D vec3d = 3.0_i + 2.0_j + 4.0_k;
+    constexpr vector3D res_prod = 19.0_i + 46.0_j + 73.0_k;
+    CHECK((1.75_identity[2] == 1.75_k));
+    CHECK((mtx3x3 * vec3d) == res_prod);
 }

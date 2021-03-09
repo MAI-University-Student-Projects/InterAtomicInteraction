@@ -2,8 +2,10 @@
 #define _VECTOR_3D_HPP
 
 #include <iostream>
+#include <cmath>
 
 class vector3D { // удалить .cpp, переименовать в .hpp, переписать cmakelists
+private:
     double _crdVec[3] = {0, 0, 0};
 public:
     constexpr vector3D() = default;
