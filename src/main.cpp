@@ -1,9 +1,11 @@
 #include "matrix3D.hpp"
 #include "lattice.h"
+#include <iostream>
 
-int main(int argc, char* argv[]) {
-    constexpr vector3D vec_2 = 1.0_i + 5.0_j + 0.890_k;
-    std::cout << vec_2[2] << std::endl;
+int main(int argc, const char * argv[]) {
+#pragma omp parallel
+#pragma omp critical
+    std::cout << "Greetings from thread "<< omp_get_thread_num() << std::endl;
     return 0;
 }
 
