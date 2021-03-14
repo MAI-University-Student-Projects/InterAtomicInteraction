@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cmath>
 
-class vector3D { // удалить .cpp, переименовать в .hpp, переписать cmakelists
+class vector3D {
 private:
     double _crdVec[3] = {0, 0, 0};
 public:
