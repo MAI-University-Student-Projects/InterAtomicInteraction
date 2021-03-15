@@ -1,7 +1,7 @@
 find_package(OpenMP REQUIRED)
 
-set(_HEADERS lattice.h parameters.h atom.h)
-set(_SOURCES vector3D.hpp matrix3D.hpp lattice.cpp parameters.cpp atom.cpp)
+set(_HEADERS solver.h lattice.h atom.h)
+set(_SOURCES solver.cpp lattice.cpp atom.cpp matrix3D.hpp vector3D.hpp)
 
 add_library(atomic_lib ${_HEADERS} ${_SOURCES})
 target_link_libraries(atomic_lib PUBLIC OpenMP::OpenMP_CXX)

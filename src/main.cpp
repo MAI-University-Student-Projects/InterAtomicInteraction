@@ -1,5 +1,4 @@
-#include "matrix3D.hpp"
-#include "lattice.h"
+#include "solver.h"
 #include <iostream>
 
 int main(int argc, const char * argv[]) {

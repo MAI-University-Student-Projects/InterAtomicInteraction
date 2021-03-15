@@ -2,7 +2,6 @@
 #define _ATOM_HPP
 
 #include "matrix3D.hpp"
-#include "parameters.h"
 
 enum InteractType : uint8_t { AA = 0, AB, BB };
 
