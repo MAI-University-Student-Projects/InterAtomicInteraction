@@ -2,38 +2,48 @@
 
 #include <numeric>
 
-//can be parallelized with execution_policy from c++17
-double Lattice::fullEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm) const {
-    return std::transform_reduce(
-                                 _atoms.cbegin(), _atoms.cend(),
-                                 0.0, std::plus<>(),
-                                 [&, it = _atoms.cbegin()](const Atom&) mutable {
-                                     ++it;
-                                     return cohesiveEnergy(ptncl_prms, dfrm, it);
-                                 } );
-}
+namespace inter_atomic {
 
-double Lattice::repulsiveEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, std::vector<Atom>::const_iterator atm_it) const {
-    return 2 * std::transform_reduce(
-                                     atm_it, _atoms.cend(),
+    //can be parallelized with execution_policy from c++17
+    double Lattice::fullEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_r) const {
+        size_t end_idx = (atm_id_r == 0) ? _atoms.size() : atm_id_r;
+        return std::transform_reduce(
+                                     _atoms.cbegin(), _atoms.cbegin() + end_idx,
                                      0.0, std::plus<>(),
-                                     [&](const Atom& atm_oth) {
-                                         InteractType intr_tp = interact_type(*atm_it, atm_oth);
-                                         double r_ij = (intr_tp == AB) ? distance(*(atm_it - 1), atm_oth, _period, dfrm, false) * _a : distance(*(atm_it - 1), atm_oth, _period, dfrm) * _a;
-                                         return (ptncl_prms[A1_ID*intr_tp] * (r_ij - ptncl_prms[R0_ID*intr_tp]) + ptncl_prms[A0_ID*intr_tp]) * std::exp(-ptncl_prms[P_ID*intr_tp] * (r_ij / ptncl_prms[R0_ID*intr_tp] - 1));
+                                     [&, idx = 0](const Atom&) mutable {
+                                         ++idx;
+                                         return cohesiveEnergy(ptncl_prms, dfrm, idx - 1, end_idx);
                                      } );
-}
+    }
 
-double Lattice::bandEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, std::vector<Atom>::const_iterator atm_it) const {
-    return 2 * -std::sqrt(
-                          std::transform_reduce(
-                                                atm_it, _atoms.cend(),
-                                                0.0, std::plus<>(),
-                                                [&](const Atom& atm_oth) mutable {
-                                                    InteractType intr_tp = interact_type(*atm_it, atm_oth);
-                                                    double r_ij = (intr_tp == AB) ? distance(*(atm_it - 1), atm_oth, _period, dfrm, false) * _a : distance(*(atm_it - 1), atm_oth, _period, dfrm) * _a;
-                                                    return std::pow(ptncl_prms[KSI_ID*intr_tp], 2) * std::exp(-2 * ptncl_prms[Q_ID*intr_tp] * (r_ij / ptncl_prms[R0_ID*intr_tp] - 1));
-                                                } )
-                          );
+    double Lattice::cohesiveEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l, size_t atm_id_r) const {
+        size_t end_idx = (atm_id_r == 0) ? _atoms.size() : atm_id_r;
+        return repulsiveEnergy(ptncl_prms, dfrm, atm_id_l, end_idx) + bandEnergy(ptncl_prms, dfrm, atm_id_l, end_idx);
+    }
+
+    double Lattice::repulsiveEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l, size_t atm_id_r) const {
+        return 2 * std::transform_reduce(
+                                         _atoms.cbegin() + (atm_id_l + 1), _atoms.cbegin() + atm_id_r,
+                                         0.0, std::plus<>(),
+                                         [&](const Atom& atm_oth) {
+                                             Bond_Tp intr_tp = interact_type(_atoms[atm_id_l], atm_oth);
+                                             double r_ij = (intr_tp == AB) ? distance(_atoms[atm_id_l], atm_oth, _period, dfrm, false) * _a : distance(_atoms[atm_id_l], atm_oth, _period, dfrm) * _a;
+                                             return (ptncl_prms[PtclPrmID::A1_ID*intr_tp] * (r_ij - ptncl_prms[PtclPrmID::R0_ID*intr_tp]) + ptncl_prms[PtclPrmID::A0_ID*intr_tp]) * std::exp(-ptncl_prms[PtclPrmID::P_ID*intr_tp] * (r_ij / ptncl_prms[PtclPrmID::R0_ID*intr_tp] - 1));
+                                         } );
+    }
+
+    double Lattice::bandEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l, size_t atm_id_r) const {
+        return 2 * -std::sqrt(
+                              std::transform_reduce(
+                                                    _atoms.cbegin() + (atm_id_l + 1), _atoms.cbegin() + atm_id_r,
+                                                    0.0, std::plus<>(),
+                                                    [&](const Atom& atm_oth) mutable {
+                                                        Bond_Tp intr_tp = interact_type(_atoms[atm_id_l], atm_oth);
+                                                        double r_ij = (intr_tp == Bond_Tp::AB) ? distance(_atoms[atm_id_l], atm_oth, _period, dfrm, false) * _a : distance(_atoms[atm_id_l], atm_oth, _period, dfrm) * _a;
+                                                        return std::pow(ptncl_prms[PtclPrmID::KSI_ID*intr_tp], 2) * std::exp(-2 * ptncl_prms[PtclPrmID::Q_ID*intr_tp] * (r_ij / ptncl_prms[PtclPrmID::R0_ID*intr_tp] - 1));
+                                                    } )
+                              );
+    }
+
 }
 
