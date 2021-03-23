@@ -1,4 +1,4 @@
-#include "solver.h"
+#include "optimizer.h"
 #include <iostream>
 
 int main(int argc, const char * argv[]) {

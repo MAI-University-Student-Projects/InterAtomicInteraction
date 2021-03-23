@@ -1,5 +1,5 @@
-#ifndef _SOLVER_H
-#define _SOLVER_H
+#ifndef _TABLE_ESTIMATOR_H
+#define _TABLE_ESTIMATOR_H
 
 #include <memory>
 
@@ -15,12 +15,6 @@ namespace inter_atomic {
         TBL_SIZE
     };
 
-    /* только для решетки с периодом (3,3,3) как и должно быть, так как на ней и вычисляем примерные параметры => есть абстракция => необходим класс
-    
-     стратегия: ОценщикТабличныхПараметров ИнтерфейсМетодовОптимиацииСФункционаломОшибки МетодОптимизации Решатель
-    */
-    double ErrorFunctional(const std::valarray<double>& in_tbl_prms, const std::valarray<double>& ptncl_prms, const Lattice& lttc);
-
     class TableEstimator {
     public:
         explicit TableEstimator(double input_lttc_cnst, double coh_energy_oth) : _coh_energy_A{coh_energy_oth} {
@@ -29,7 +23,7 @@ namespace inter_atomic {
         
         std::valarray<double> estimateTblPrms(const std::valarray<double>& ptncl_prms);
     private:
-        double estimateLttcConstnt(const std::valarray<double>& ptncl_prms) const;
+        double estimateLttcConstnt(const std::valarray<double>& ptncl_prms, double a_left, double a_right, double epsln = 0.01) const;
         
         std::unique_ptr<Lattice> _lttc_ptr;
         
@@ -50,12 +44,6 @@ namespace inter_atomic {
         static constexpr matrix3D _c44_dfrm_neg = elasticity44(-_delta);
     };
 
-//    double ErrorFunctional(const std::valarray<double>& ptncl_prms) {
-//        return std::sqrt(
-//                         std::pow( (_inpt_table_prms / CountTableParams(ptncl_prms)) - 1.0, 2)
-//                         .sum() / (_inpt_table_prms.size() - 1)
-//                         );
-//    }
 }
 
 #endif

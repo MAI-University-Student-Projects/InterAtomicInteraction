@@ -1,12 +1,16 @@
-#include "solver.h"
+#include "table_estimator.h"
 
 namespace inter_atomic {
 
     //    possible parallel, but many lattice setters - better not here
     std::valarray<double> TableEstimator::estimateTblPrms(const std::valarray<double>& ptncl_prms) {
         std::valarray<double> table_res(TblPrmID::TBL_SIZE);
-        //count lattice constant here estimateLttcConstnt(ptncl_prms); set_constant =
-        //table_res[TblPrmID::LTTC_CONST_ID] =
+        
+        // lttc NON-CONST here
+        double a = estimateLttcConstnt(ptncl_prms, 1, 8);
+        _lttc_ptr->set_constant(a);
+        table_res[TblPrmID::LTTC_CONST_ID] = a;
+        
         double lttc_energy = _lttc_ptr->fullEnergy(ptncl_prms, _ident_dfrm);
         double coh_energy = lttc_energy / _lttc_ptr->size();
         table_res[TblPrmID::ECOH_ID] = coh_energy;
@@ -53,15 +57,28 @@ namespace inter_atomic {
         _lttc_ptr->at(0, 0, 2, 1)._type = Atom::AtomType::B; // change atom type back
     }
 
-    double TableEstimator::estimateLttcConstnt(const std::valarray<double>& ptncl_prms) const {
-        // use gradient descent
+    double TableEstimator::estimateLttcConstnt(const std::valarray<double>& ptncl_prms, double a_left, double a_right, double epsln) const {
+        const uint8_t knots_size = 5;
+        double cnt_epsln = 1.0;
+        std::pair cnt_min_pair = std::make_pair(0.0, std::numeric_limits<double>::max());
+        std::pair prev_min_pair = std::make_pair(0.0, std::numeric_limits<double>::max());
+        while(cnt_epsln > epsln) {
+            double step = (a_right - a_left) / knots_size;
+            for(uint8_t i = 0; i < knots_size; ++i) {
+                double a_knot = a_left + i * step;
+                _lttc_ptr->set_constant(a_knot);
+                double knot_energy = _lttc_ptr->cohesiveEnergy(ptncl_prms, _ident_dfrm);
+                if(knot_energy < cnt_min_pair.second) {
+                    cnt_min_pair.first = a_knot;
+                    cnt_min_pair.second = knot_energy;
+                }
+            }
+            a_left = cnt_min_pair.first - step / 2;
+            a_right = cnt_min_pair.first - step / 2;
+            cnt_epsln = std::abs(prev_min_pair.second - cnt_min_pair.second);
+            prev_min_pair = cnt_min_pair;
+        }
+        return cnt_min_pair.first;
     }
-
-//double ErrorFunctional(const std::valarray<double>& in_tbl_prms, const std::valarray<double>& ptncl_prms, Lattice& lttc) {
-//    return std::sqrt(
-//                     std::pow( (in_tbl_prms / CountTblPrms(ptncl_prms, lttc)) - 1.0, 2)
-//                     .sum() / in_tbl_prms.size()
-//                     );
-//}
 
 }
