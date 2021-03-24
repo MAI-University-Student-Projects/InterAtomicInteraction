@@ -18,7 +18,7 @@ namespace inter_atomic {
             _atoms.reserve(_unit_vtcs.size() * (_period[0]+1) * (_period[1]+1) * (_period[2]+1));
             for(int k = 0; k < prd[2]; ++k) {
                 for(int j = 0; j < prd[1]; ++j) {
-                    for(int i = 0; k < prd[0]; ++i) {
+                    for(int i = 0; i < prd[0]; ++i) {
                         for(size_t b = 0; b < _unit_vtcs.size(); ++b)
                             _atoms.emplace_back(Atom{tp, _unit_vtcs[b] + vector3D(i, j, k)});
                     }
@@ -36,8 +36,6 @@ namespace inter_atomic {
         double fullEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_r = 0) const;
     //    cohesiveEnergy(parameters, deformation, begin(), end())
         double cohesiveEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l = 0, size_t atm_id_r = 0) const;
-        
-        void put_atom(const Atom& oth) { _atoms.emplace_back(oth); }
         
         // atom period id-cies i = ; j = ; k = ; unit_cell_idx =
         // index taken from the way lattice constructed - watch nested loops in explicit constructor

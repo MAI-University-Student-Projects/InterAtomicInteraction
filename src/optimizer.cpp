@@ -2,7 +2,7 @@
 
 namespace inter_atomic {
 
-std::valarray<double> NelderMeadOptimizer::Optimize() const {
+std::valarray<double> NelderMeadOptimizer::optimize(TableEstimator& tabl_esmtr) const {
     
 }
 

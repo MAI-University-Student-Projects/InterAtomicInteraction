@@ -29,7 +29,7 @@ namespace inter_atomic {
         }
         
         bool isIdentity() const {
-            double res = true;
+            bool res = true;
             for(uint8_t i = 0; i < 3 && res; ++i) {
                 for(uint8_t j = 0; j < 3 && res; ++j)
                     res = (i == j) ? ( std::abs(_arr3x3[i][j] - 1.0) < 1e-12 ) : ( std::abs(_arr3x3[i][j] - 0.0) < 1e-12 );
@@ -55,7 +55,7 @@ namespace inter_atomic {
     }
 
     constexpr matrix3D elasticity44(double alpha) {
-        return matrix3D{ vector3D{1.0, alpha, 0.0}, vector3D{alpha, 0.1, 0.0}, 1.0_k * (1 / (1 - alpha) / (1 - alpha)) };
+        return matrix3D{ vector3D{1.0, alpha, 0.0}, vector3D{alpha, 1.0, 0.0}, 1.0_k * (1 / (1 - alpha * alpha)) };
     }
 }
 

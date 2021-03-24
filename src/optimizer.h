@@ -13,7 +13,10 @@ namespace inter_atomic {
                                 std::pair<std::valarray<double>, std::valarray<double>> ptncl_prms_bounds) : _inpt_table_prms{std::move(in_tbl_prms)}, _inpt_ptncl_bounds{std::move(ptncl_prms_bounds)} {}
         
         AbstrOptimazer(const AbstrOptimazer&) = delete;
+        AbstrOptimazer(AbstrOptimazer&&) = default;
+        
         AbstrOptimazer& operator=(const AbstrOptimazer&) = delete;
+        AbstrOptimazer& operator=(AbstrOptimazer&&) = default;
         
         virtual double errorFunctional(const std::valarray<double>& ptncl_prms, TableEstimator& tabl_esmtr) {
         return std::sqrt(
@@ -38,15 +41,15 @@ namespace inter_atomic {
         const double _alpha, _betta, _gamma, _sigma;
     };
 
-class Solver {
-public:
-    Solver(std::unique_ptr<AbstrOptimazer> optimizer) : _optimizer{std::move(optimizer)} {}
-    std::valarray<double> solve(TableEstimator& tabl_esmtr) {
-        return _optimizer->optimize(tabl_esmtr);
-    }
-private:
-    std::unique_ptr<AbstrOptimazer> _optimizer;
-};
+    class Solver {
+    public:
+        Solver(std::unique_ptr<AbstrOptimazer> optimizer) : _optimizer{std::move(optimizer)} {}
+        std::valarray<double> solve(TableEstimator& tabl_esmtr) {
+            return _optimizer->optimize(tabl_esmtr);
+        }
+    private:
+        std::unique_ptr<AbstrOptimazer> _optimizer;
+    };
 
 }
 

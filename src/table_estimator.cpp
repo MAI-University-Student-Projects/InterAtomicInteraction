@@ -41,11 +41,11 @@ namespace inter_atomic {
         // lttc NON-CONST here
         _lttc_ptr->at(0, 0, 1, 3)._type = Atom::AtomType::A; // change type of atom in surface layer
         double in_adatom_surf_energy = _lttc_ptr->fullEnergy(ptncl_prms, _ident_dfrm, _lttc_ptr->id_at(0, 0, 2));
-        _lttc_ptr->at(0, 0, 1, 2)._type = Atom::AtomType::A; // making dimer of A atoms in surface layer
+        _lttc_ptr->at(1, 1, 1, 2)._type = Atom::AtomType::A; // making dimer of A atoms in surface layer
         double in_dim_surf_energy = _lttc_ptr->fullEnergy(ptncl_prms, _ident_dfrm, _lttc_ptr->id_at(0, 0, 2));
         table_res[TblPrmID::EIN_ID] = in_dim_surf_energy - surface_energy - 2 * (in_adatom_surf_energy - surface_energy);
         _lttc_ptr->at(0, 0, 1, 3)._type = Atom::AtomType::B; // change atom type back
-        _lttc_ptr->at(0, 0, 1, 2)._type = Atom::AtomType::B; // change atom type back
+        _lttc_ptr->at(1, 1, 1, 2)._type = Atom::AtomType::B; // change atom type back
         
         // lttc NON-CONST here
         _lttc_ptr->at(0, 0, 2)._type = Atom::AtomType::A; // change type of atom on surface layer
