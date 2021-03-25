@@ -75,6 +75,8 @@ TEST_CASE("lattice basics tests", "[inter_atomic][Lattice]") {
     REQUIRE(interact_type(lttc[lttc.size() - 1], lttc[0]) == Bond_Tp::AB);
     lttc[lttc.size() - 1]._type = Atom::AtomType::A;
     REQUIRE(distance(lttc[lttc.size() - 1], lttc[1], period, 1.0_identity) == (1.224_a).margin(1e-3));
+    lttc.set_constant(3.0);
+    REQUIRE_FALSE(lttc.get_constant() == a);
 }
 
 TEST_CASE("lattice energy tests", "[inter_atomic][Lattice]") {
@@ -82,11 +84,7 @@ TEST_CASE("lattice energy tests", "[inter_atomic][Lattice]") {
     std::valarray ptncl_prms = { 0.1, -0.1, 0.8, 8.0, 3.0, 2.0 }; // { A0_ID = 0, A1_ID, KSI_ID, P_ID, Q_ID, R0_ID, PTCL_SIZE };
     double coh_energy = lttc.cohesiveEnergy(ptncl_prms, 1.0_identity);
     REQUIRE(coh_energy == (1.618_a).margin(1e-3));
-    REQUIRE(lttc.fullEnergy(ptncl_prms, 1.0_identity) == coh_energy * lttc.size()); //F
+    REQUIRE(lttc.fullEnergy(ptncl_prms, 1.0_identity) == coh_energy * lttc.size());
+    REQUIRE(lttc.fullEnergy(ptncl_prms, 1.0_identity, 3) == (1.7365_a).margin(1e-4));
 }
-
-/*
- проблема - я не учитываю уже рассчитанные энергии пар, я их просто выкидываю при рассчете когезионной энергии атома - это для fullenergy
-*/
-
 
