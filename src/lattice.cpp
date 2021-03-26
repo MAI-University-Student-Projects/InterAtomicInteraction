@@ -5,7 +5,7 @@
 namespace inter_atomic {
 
     //can be parallelized with execution_policy from c++17
-    double Lattice::fullEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_r) const {
+    double Lattice::fullEnergy(const parameters& ptncl_prms, const matrix3D& dfrm, size_t atm_id_r) const {
         size_t end_idx = (atm_id_r == 0) ? _atoms.size() : atm_id_r;
         return std::transform_reduce(
                                      _atoms.cbegin(), _atoms.cbegin() + end_idx,
@@ -16,12 +16,12 @@ namespace inter_atomic {
                                      } );
     }
 
-    double Lattice::cohesiveEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l, size_t atm_id_r) const {
+    double Lattice::cohesiveEnergy(const parameters& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l, size_t atm_id_r) const {
         size_t end_idx = (atm_id_r == 0) ? _atoms.size() : atm_id_r;
         return repulsiveEnergy(ptncl_prms, dfrm, atm_id_l, end_idx) + bandEnergy(ptncl_prms, dfrm, atm_id_l, end_idx);
     }
 
-    double Lattice::repulsiveEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l, size_t atm_id_r) const {
+    double Lattice::repulsiveEnergy(const parameters& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l, size_t atm_id_r) const {
         return std::transform_reduce(
                                      _atoms.cbegin(), _atoms.cbegin() + atm_id_r,
                                      0.0, std::plus<>(),
@@ -38,7 +38,7 @@ namespace inter_atomic {
                                      } );
     }
 
-    double Lattice::bandEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l, size_t atm_id_r) const {
+    double Lattice::bandEnergy(const parameters& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l, size_t atm_id_r) const {
         return -std::sqrt(
                           std::transform_reduce(
                                                 _atoms.cbegin(), _atoms.cbegin() + atm_id_r,

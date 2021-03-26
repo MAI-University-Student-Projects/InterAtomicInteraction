@@ -3,8 +3,9 @@
 namespace inter_atomic {
 
     //    possible parallel, but many lattice setters - better not here
-    std::valarray<double> TableEstimator::estimateTblPrms(const std::valarray<double>& ptncl_prms) {
-        std::valarray<double> table_res(TblPrmID::TBL_SIZE);
+    parameters TableEstimator::estimateTblPrms(const parameters& ptncl_prms, double coh_energy_oth) {
+        parameters table_res(TblPrmID::TBL_SIZE);
+        table_res[TblPrmID::ECOH_A_ID] = coh_energy_oth;
         
         // lttc NON-CONST here
         double a = estimateLttcConstnt(ptncl_prms, 1, 8);
@@ -35,7 +36,7 @@ namespace inter_atomic {
         // lttc NON-CONST here
         _lttc_ptr->operator[](0)._type = Atom::AtomType::A; //change type of any atom
         double mixed_energy = _lttc_ptr->fullEnergy(ptncl_prms, _ident_dfrm);
-        table_res[TblPrmID::ESOL_ID] = mixed_energy - lttc_energy - _coh_energy_A + coh_energy;
+        table_res[TblPrmID::ESOL_ID] = mixed_energy - lttc_energy - coh_energy_oth + coh_energy;
         _lttc_ptr->operator[](0)._type = Atom::AtomType::B; //change atom type back
         
         // lttc NON-CONST here
@@ -57,7 +58,7 @@ namespace inter_atomic {
         _lttc_ptr->at(0, 0, 2, 1)._type = Atom::AtomType::B; // change atom type back
     }
 
-    double TableEstimator::estimateLttcConstnt(const std::valarray<double>& ptncl_prms, double a_left, double a_right, double epsln) const {
+    double TableEstimator::estimateLttcConstnt(const parameters& ptncl_prms, double a_left, double a_right, double epsln) const {
         const uint8_t knots_size = 5;
         double cnt_epsln = 1.0;
         std::pair cnt_min_pair = std::make_pair(0.0, std::numeric_limits<double>::max());

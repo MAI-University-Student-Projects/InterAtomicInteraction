@@ -12,22 +12,22 @@ namespace inter_atomic {
         ECOH_ID, B_ID,
         C11_ID, C12_ID, C44_ID,
         ESOL_ID, EIN_ID, EON_ID,
+        ECOH_A_ID,
         TBL_SIZE
     };
 
     class TableEstimator {
     public:
-        explicit TableEstimator(double input_lttc_cnst, double coh_energy_oth) : _coh_energy_A{coh_energy_oth} {
+        explicit TableEstimator(double input_lttc_cnst = 1.0) {
             _lttc_ptr = std::make_unique<Lattice>(Atom::AtomType::B, std::array<int, 3>{3, 3, 3}, input_lttc_cnst);
         }
         
-        std::valarray<double> estimateTblPrms(const std::valarray<double>& ptncl_prms);
+        parameters estimateTblPrms(const parameters& ptncl_prms, double coh_energy_oth);
     private:
-        double estimateLttcConstnt(const std::valarray<double>& ptncl_prms, double a_left, double a_right, double epsln = 0.01) const;
+        double estimateLttcConstnt(const parameters& ptncl_prms, double a_left, double a_right, double epsln = 0.01) const;
         
         std::unique_ptr<Lattice> _lttc_ptr;
         
-        const double _coh_energy_A;
         static constexpr double _delta = 0.001;
         static constexpr matrix3D _ident_dfrm = 1.0_identity;
 

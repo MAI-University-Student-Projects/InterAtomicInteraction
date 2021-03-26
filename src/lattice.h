@@ -8,6 +8,8 @@
 
 namespace inter_atomic {
 
+    using parameters = std::valarray<double>;
+
     enum PtclPrmID { A0_ID = 0, A1_ID, KSI_ID, P_ID, Q_ID, R0_ID, PTCL_SIZE };
 
     class Lattice {
@@ -33,9 +35,9 @@ namespace inter_atomic {
         Lattice& operator=(Lattice&&) = default;
 
     //    fullEnergy(parameters, deformation, end())
-        double fullEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_r = 0) const;
+        double fullEnergy(const parameters& ptncl_prms, const matrix3D& dfrm, size_t atm_id_r = 0) const;
     //    cohesiveEnergy(parameters, deformation, begin(), end())
-        double cohesiveEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l = 0, size_t atm_id_r = 0) const;
+        double cohesiveEnergy(const parameters& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l = 0, size_t atm_id_r = 0) const;
         
         // atom period id-cies i = ; j = ; k = ; unit_cell_idx =
         // index taken from the way lattice constructed - watch nested loops in explicit constructor
@@ -57,8 +59,8 @@ namespace inter_atomic {
         ~Lattice() = default;
     private:
         
-        double repulsiveEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l, size_t atm_id_r) const;
-        double bandEnergy(const std::valarray<double>& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l, size_t atm_id_r) const;
+        double repulsiveEnergy(const parameters& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l, size_t atm_id_r) const;
+        double bandEnergy(const parameters& ptncl_prms, const matrix3D& dfrm, size_t atm_id_l, size_t atm_id_r) const;
         
         std::vector<Atom> _atoms;
         std::array<int, 3> _period;
