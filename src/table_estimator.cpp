@@ -60,7 +60,7 @@ namespace inter_atomic {
 
     double TableEstimator::estimateLttcConstnt(const parameters& ptncl_prms, double a_left, double a_right, double epsln) const {
         const uint8_t knots_size = 5;
-        double cnt_epsln = 1.0;
+        double cnt_epsln = std::numeric_limits<double>::max();
         std::pair cnt_min_pair = std::make_pair(0.0, std::numeric_limits<double>::max());
         std::pair prev_min_pair = std::make_pair(0.0, std::numeric_limits<double>::max());
         while(cnt_epsln > epsln) {
