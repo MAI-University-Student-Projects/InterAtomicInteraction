@@ -44,7 +44,7 @@ namespace inter_atomic {
     class Solver {
     public:
         Solver(std::unique_ptr<AbstrOptimazer> optimizer) : _optimizer{std::move(optimizer)} {}
-        parameters solve(int iteration_limit) {
+        parameters solve(int iteration_limit = -1) {
             return _optimizer->optimize(iteration_limit);
         }
     private:

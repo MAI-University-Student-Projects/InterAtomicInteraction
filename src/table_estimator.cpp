@@ -56,6 +56,7 @@ namespace inter_atomic {
         table_res[TblPrmID::EON_ID] = on_dim_surf_energy - surface_energy - 2 * (on_adatom_surf_energy - surface_energy);
         _lttc_ptr->at(0, 0, 2)._type = Atom::AtomType::B; // change atom type back
         _lttc_ptr->at(0, 0, 2, 1)._type = Atom::AtomType::B; // change atom type back
+        return table_res;
     }
 
     double TableEstimator::estimateLttcConstnt(const parameters& ptncl_prms, double a_left, double a_right, double epsln) const {

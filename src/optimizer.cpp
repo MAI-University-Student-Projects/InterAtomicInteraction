@@ -8,6 +8,7 @@
 namespace inter_atomic {
 
     parameters NelderMeadOptimizer::optimize(int iteration_limit) const {
+        int stop = (iteration_limit > 0) ? iteration_limit : std::numeric_limits<int16_t>::max();
         const size_t n = _inpt_ptncl_bounds.first.size();
         volatile bool to_finish = false;
         parameters result(n);
@@ -31,14 +32,20 @@ namespace inter_atomic {
             double converg = std::numeric_limits<double>::max();
             
             #pragma omp for schedule(dynamic, 1)
-            for (int launch = 0; launch < iteration_limit; ++launch) {
+            for (int launch = 0; launch < stop; ++launch) {
                 if(to_finish)
                     continue;
                 std::sort(f_x.begin(), f_x.end(), [](auto &lhs_f_x, auto &rhs_f_x) { return lhs_f_x.first > rhs_f_x.first; });
                 bool to_shrink = false;
-                parameters x_c = std::accumulate(it_f_g, f_x.end(), parameters(n), [&f_x](const parameters& res, auto &f_x_i) {
-                    return res + f_x_i.second / (f_x.size() - 1);
-                });
+
+                // works in godbolt clang 11.0.0, doesn't work on my clang 11.0.1, may be because of openmp
+//                parameters x_c = std::accumulate(it_f_g, f_x.end(), parameters(f_x[0].second.size()),
+//                                  [&f_x](const parameters& res, auto &pp_x_i) {
+//                                                    return res + pp_x_i.second / (f_x.size() - 1);
+//                                                });
+                parameters x_c(n);
+                for(auto it = it_f_g; it != f_x.end(); ++it)
+                    x_c += (*it).second / (f_x.size() - 1);
 
                 parameters x_r = (1 + _alpha) * x_c - _alpha * (*it_f_h).second;
                 double f_r = errorFunctional(x_r, tabl_prms_cntr);
@@ -73,9 +80,9 @@ namespace inter_atomic {
                                                           [mean](auto &lhs_f, auto &rhs_f) { return (lhs_f.first - mean) * (rhs_f.first - mean);}
                                                           )
                                     );
-                
+                std::cout << "i = " << launch << ": func_min=" << (*it_f_l).first << ", func_max=" << (*it_f_h).first << ", cnvg = " << converg << ", thr=" << omp_get_thread_num() << "\n";
                 #pragma omp critical(stopCriteria)
-                if(converg < 0.01 && (*it_f_l).first < _epsln) {
+                if((converg < _epsln) || (launch == iteration_limit - 1)) {
                     to_finish = true;
                     result = (*it_f_l).second;
                 }
