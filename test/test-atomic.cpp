@@ -59,6 +59,7 @@ TEST_CASE("atom tests", "[inter_atomic][Atom]") {
     REQUIRE((interact_type(atom_period_z, atom_b) == Bond_Tp::AB && interact_type(atom_a, atom_period_z) == Bond_Tp::AA));
     double ab = distance(atom_a, atom_b, period, 1.0_identity, false);
     REQUIRE((ab == Catch::Approx(std::sqrt(2.75)).margin(1e-12) && ab == distance(atom_b, atom_a, period, 1.0_identity, false)));
+    REQUIRE(energy(atom_a, atom_period_z, { 0.1, -0.1, 0.8, 8.0, 3.0, 2.0 }, 2.5) == (-0.162_a).margin(1e-3));
     CHECK(distance(atom_period_z, atom_b, period, 1.0_identity) == Catch::Approx(std::sqrt(0.25)).margin(1e-12));
     CHECK(distance(atom_period_z, atom_a, period, elasticity44(3.0)) == (1.419_a).margin(1e-3));
 }

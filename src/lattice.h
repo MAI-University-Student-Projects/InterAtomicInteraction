@@ -2,15 +2,10 @@
 #define _LATTICE_H
 
 #include <vector>
-#include <valarray>
 
-#include "atom.hpp"
+#include "atom.h"
 
 namespace inter_atomic {
-
-    using parameters = std::valarray<double>;
-
-    enum PtclPrmID { A0_ID = 0, A1_ID, KSI_ID, P_ID, Q_ID, R0_ID, PTCL_SIZE };
 
     class Lattice {
     public:

@@ -11,7 +11,7 @@ using json = nlohmann::json;
 using namespace inter_atomic;
 
 int main(int argc, const char * argv[]) {
-    std::ifstream inp_js("input.json", std::ifstream::in);
+    std::ifstream inp_js("input_data.json", std::ifstream::in);
     json jsonConfig;
     if(!inp_js.is_open()) {
         std::cerr << "Invalid filename" << std::endl;
@@ -33,13 +33,14 @@ int main(int argc, const char * argv[]) {
     
     auto start = std::chrono::high_resolution_clock::now();
     std::cout << "started, check logs for optimization details..." << std::endl;
-    parameters res = solvr.solve(800);
+    parameters res = solvr.solve(1000);
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::chrono::seconds::period> elapsedTime = finish - start;
     std::cout << "Elapsed time " << elapsedTime.count() << 's' << std::endl;
     
     jsonConfig["optimized_ptncl_params"] = res;
-    std::ofstream outp_js("output.json", std::ios::out);
+    jsonConfig["elapsed time"] = std::to_string(elapsedTime.count()) + "sec";
+    std::ofstream outp_js("optimized_params.json", std::ios::out);
     if(!outp_js.is_open()) {
         std::cerr << "Invalid filename" << std::endl;
         std::cerr << "Unsaved result of optimization:" << std::endl;
@@ -48,7 +49,6 @@ int main(int argc, const char * argv[]) {
         exit(-1);
     }
     outp_js << jsonConfig;
-    
     
     return 0;
 }

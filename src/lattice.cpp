@@ -30,7 +30,7 @@ namespace inter_atomic {
                                          if(idx != atm_id_l) {
                                              Bond_Tp intr_tp = interact_type(_atoms[atm_id_l], atm_oth);
                                              double r_ij = (intr_tp == AB) ? distance(_atoms[atm_id_l], atm_oth, _period, dfrm, false) * _a : distance(_atoms[atm_id_l], atm_oth, _period, dfrm) * _a;
-                                             auto tp_prm_it = std::begin(ptncl_prms) + intr_tp * PtclPrmID::PTCL_SIZE;
+                                             auto tp_prm_it = std::next(std::begin(ptncl_prms), intr_tp * PtclPrmID::PTCL_SIZE);
                                              res = (tp_prm_it[PtclPrmID::A1_ID] * (r_ij - tp_prm_it[PtclPrmID::R0_ID]) + tp_prm_it[PtclPrmID::A0_ID]) * std::exp(-tp_prm_it[PtclPrmID::P_ID] * (r_ij / tp_prm_it[PtclPrmID::R0_ID] - 1));
                                          }
                                          ++idx;
@@ -48,7 +48,7 @@ namespace inter_atomic {
                                                 if(idx != atm_id_l) {
                                                     Bond_Tp intr_tp = interact_type(_atoms[atm_id_l], atm_oth);
                                                     double r_ij = (intr_tp == Bond_Tp::AB) ? distance(_atoms[atm_id_l], atm_oth, _period, dfrm, false) * _a : distance(_atoms[atm_id_l], atm_oth, _period, dfrm) * _a;
-                                                    auto tp_prm_it = std::begin(ptncl_prms) + intr_tp * PtclPrmID::PTCL_SIZE;
+                                                    auto tp_prm_it = std::next(std::begin(ptncl_prms), intr_tp * PtclPrmID::PTCL_SIZE);
                                                     res = std::pow(tp_prm_it[PtclPrmID::KSI_ID], 2) * std::exp(-2 * tp_prm_it[PtclPrmID::Q_ID] * (r_ij / tp_prm_it[PtclPrmID::R0_ID] - 1));
                                                 }
                                                 ++idx;
