@@ -1,2 +1,17 @@
 .DS_Store
 build/
+
+*.a
+*.lib
+
+*.o
+*.obj
+
+*.exe
+*.out
+*.app
+*.e
+
+src/nelder_mead_log.txt
+src/output.json
+src/inter_atomic

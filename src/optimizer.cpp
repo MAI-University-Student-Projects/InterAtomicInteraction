@@ -3,6 +3,8 @@
 #include <map>
 #include <random>
 #include <limits>
+#include <fstream>
+
 #include <omp.h>
 
 namespace inter_atomic {
@@ -12,6 +14,7 @@ namespace inter_atomic {
         const size_t n = _inpt_ptncl_bounds.first.size();
         volatile bool to_finish = false;
         parameters result(n);
+        std::ofstream logger("nelder_mead_log.txt", std::ios::out);
         //use openmp to parallel each optimization start with bottleneck at the convergence condition
         #pragma omp parallel
         {
@@ -52,7 +55,7 @@ namespace inter_atomic {
                 if(f_r < (*it_f_l).first) {
                     parameters x_e = (1 - _gamma) * x_c + _gamma * x_r;
                     double f_e = errorFunctional(x_e, tabl_prms_cntr);
-                    *it_f_h = std::make_pair(f_e, std::move(x_e));
+                    *it_f_h = (f_e < f_r) ? std::make_pair(f_e, std::move(x_e)) : std::make_pair(f_e, std::move(x_r));
                 }
                 else if(f_r > (*it_f_l).first and f_r < (*it_f_h).first) {
                     if(f_r > (*it_f_g).first)
@@ -80,8 +83,8 @@ namespace inter_atomic {
                                                           [mean](auto &lhs_f, auto &rhs_f) { return (lhs_f.first - mean) * (rhs_f.first - mean);}
                                                           )
                                     );
-                std::cout << "i = " << launch << ": func_min=" << (*it_f_l).first << ", func_max=" << (*it_f_h).first << ", cnvg = " << converg << ", thr=" << omp_get_thread_num() << "\n";
                 #pragma omp critical(stopCriteria)
+                logger << "i = " << launch << ": func_min=" << (*it_f_l).first << ", func_max=" << (*it_f_h).first << ", cnvg = " << converg << ", thr=" << omp_get_thread_num() << "\n";
                 if((converg < _epsln) || (launch == iteration_limit - 1)) {
                     to_finish = true;
                     result = (*it_f_l).second;
