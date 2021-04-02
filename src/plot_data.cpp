@@ -21,7 +21,7 @@ int main(int argc, const char * argv[]) {
     };
     
     std::array<std::string, 3> lbl_arr = { "AA", "AB", "BB" };
-    std::ifstream inp_js("optimized_params.json", std::ifstream::in);
+    std::ifstream inp_js("../../../src/optimized_params.json", std::ifstream::in);
     json jsonConfig;
     if(!inp_js.is_open()) {
         std::cerr << "File doesn't exist" << std::endl;
@@ -36,7 +36,7 @@ int main(int argc, const char * argv[]) {
     parameters ptncl_prms = jsonConfig["optimized_ptncl_params"].get<parameters>();
     
     jsonConfig.clear();
-    std::ofstream outp_js("plot_data.json", std::ios::out);
+    std::ofstream outp_js("../../../src/plot_points.json", std::ios::out);
     
     double a_left = 0.1;
     double a_right = 20.1;
@@ -55,7 +55,7 @@ int main(int argc, const char * argv[]) {
             jsonConfig["r"] = r;
         }
         
-        #pragma omp for schedule(static, 3)
+        #pragma omp for schedule(static, 1)
         for(size_t i = 0; i < atm_arr.size(); ++i) {
             std::valarray<double> u_r(limit);
             std::generate(std::begin(u_r), std::end(u_r), [&, idx = 0]() mutable {
@@ -67,7 +67,7 @@ int main(int argc, const char * argv[]) {
         }
     
     }
-    outp_js << jsonConfig;
+    outp_js << jsonConfig.dump(4) << std::endl;
     
     return 0;
 }
