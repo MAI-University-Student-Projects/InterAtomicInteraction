@@ -24,7 +24,7 @@ namespace inter_atomic {
         
         parameters estimateTblPrms(const parameters& ptncl_prms, double coh_energy_oth);
     private:
-        double estimateLttcConstnt(const parameters& ptncl_prms, double a_left, double a_right, double epsln = 0.01) const;
+        double estimateLttcConstnt(const parameters& ptncl_prms, double a_left, double a_right, int iter = 5) const;
         
         std::unique_ptr<Lattice> _lttc_ptr;
         

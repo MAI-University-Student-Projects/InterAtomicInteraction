@@ -34,19 +34,19 @@ namespace inter_atomic {
         table_res[TblPrmID::C44_ID] = 1.602 * second_deriv(_c44_dfrm_neg, _c44_dfrm_pos) / (4.0 * V0);
         
         // lttc NON-CONST here
-        _lttc_ptr->operator[](0)._type = Atom::AtomType::A; //change type of any atom
+        _lttc_ptr->at(0, 0, 0, 0)._type = Atom::AtomType::A; //change type of any atom
         double mixed_energy = _lttc_ptr->fullEnergy(ptncl_prms, _ident_dfrm);
         table_res[TblPrmID::ESOL_ID] = mixed_energy - lttc_energy - coh_energy_oth + coh_energy;
-        _lttc_ptr->operator[](0)._type = Atom::AtomType::B; //change atom type back
+        _lttc_ptr->at(0, 0, 0, 0)._type = Atom::AtomType::B; //change atom type back
         
         // lttc NON-CONST here
-        _lttc_ptr->at(0, 0, 1, 3)._type = Atom::AtomType::A; // change type of atom in surface layer
+        _lttc_ptr->at(0, 0, 1, 2)._type = Atom::AtomType::A; // change type of atom in surface layer
         double in_adatom_surf_energy = _lttc_ptr->fullEnergy(ptncl_prms, _ident_dfrm, _lttc_ptr->id_at(0, 0, 2));
-        _lttc_ptr->at(1, 1, 1, 2)._type = Atom::AtomType::A; // making dimer of A atoms in surface layer
+        _lttc_ptr->at(0, 0, 1, 3)._type = Atom::AtomType::A; // making dimer of A atoms in surface layer
         double in_dim_surf_energy = _lttc_ptr->fullEnergy(ptncl_prms, _ident_dfrm, _lttc_ptr->id_at(0, 0, 2));
         table_res[TblPrmID::EIN_ID] = in_dim_surf_energy - surface_energy - 2 * (in_adatom_surf_energy - surface_energy);
+        _lttc_ptr->at(0, 0, 1, 2)._type = Atom::AtomType::B; // change atom type back
         _lttc_ptr->at(0, 0, 1, 3)._type = Atom::AtomType::B; // change atom type back
-        _lttc_ptr->at(1, 1, 1, 2)._type = Atom::AtomType::B; // change atom type back
         
         // lttc NON-CONST here
         _lttc_ptr->at(0, 0, 2)._type = Atom::AtomType::A; // change type of atom on surface layer
@@ -59,26 +59,20 @@ namespace inter_atomic {
         return table_res;
     }
 
-    double TableEstimator::estimateLttcConstnt(const parameters& ptncl_prms, double a_left, double a_right, double epsln) const {
+    double TableEstimator::estimateLttcConstnt(const parameters& ptncl_prms, double a_left, double a_right, int iter) const {
         const uint8_t knots_size = 5;
-        double cnt_epsln = std::numeric_limits<double>::max();
         std::pair cnt_min_pair = std::make_pair(0.0, std::numeric_limits<double>::max());
-        std::pair prev_min_pair = std::make_pair(0.0, std::numeric_limits<double>::max());
-        while(cnt_epsln > epsln) {
+        for(int i = 0; i < iter; ++i) {
             double step = (a_right - a_left) / knots_size;
-            for(uint8_t i = 0; i < knots_size; ++i) {
-                double a_knot = a_left + i * step;
+            for(uint8_t j = 0; j < knots_size; ++j) {
+                double a_knot = a_left + j * step;
                 _lttc_ptr->set_constant(a_knot);
                 double knot_energy = _lttc_ptr->cohesiveEnergy(ptncl_prms, _ident_dfrm);
-                if(knot_energy < cnt_min_pair.second) {
-                    cnt_min_pair.first = a_knot;
-                    cnt_min_pair.second = knot_energy;
-                }
+                if(knot_energy < cnt_min_pair.second)
+                    cnt_min_pair = std::make_pair(a_knot, knot_energy);
             }
             a_left = cnt_min_pair.first - step / 2;
-            a_right = cnt_min_pair.first - step / 2;
-            cnt_epsln = std::abs(prev_min_pair.second - cnt_min_pair.second);
-            prev_min_pair = cnt_min_pair;
+            a_right = cnt_min_pair.first + step / 2;
         }
         return cnt_min_pair.first;
     }

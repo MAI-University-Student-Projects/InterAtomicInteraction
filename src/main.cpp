@@ -35,18 +35,23 @@ int main(int argc, const char * argv[]) {
     Solver solvr{std::move(optimizer)};
     
     auto start = std::chrono::high_resolution_clock::now();
-    parameters res = solvr.solve(iter_limit);
+    std::pair<parameters, parameters> res = solvr.solve(iter_limit);
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::chrono::seconds::period> elapsedTime = finish - start;
     
-    jsonConfig["optimized_ptncl_params"] = res;
+    jsonConfig["optimized_ptncl_params"] = res.first;
+    jsonConfig["table_params_for_optimized_ptncl_prms"] = res.second;
     jsonConfig["elapsed time"] = std::to_string(elapsedTime.count()) + "sec";
-    jsonConfig["nOMPThreads"] = std::getenv("OMP_NUM_THREADS");
+    if(const char* env_p = std::getenv("OMP_NUM_THREADS"))
+        jsonConfig["nOMPThreads"] = env_p;
+    else
+        jsonConfig["nOMPThreads"] = "4";
+    
     std::ofstream outp_js("../../../src/optimized_params.json", std::ios::out);
     if(!outp_js.is_open()) {
         std::cerr << "Invalid filename" << std::endl;
         std::cerr << "Unsaved result of optimization:" << std::endl;
-        std::for_each(std::begin(res), std::end(res), [](double vl) { std::cerr << vl << ' '; });
+        std::for_each(std::begin(res.first), std::end(res.first), [](double vl) { std::cerr << vl << ' '; });
         std::cerr << std::endl;
         exit(-1);
     }
