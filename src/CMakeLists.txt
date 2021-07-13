@@ -1,8 +1,8 @@
 find_package(OpenMP REQUIRED)
 find_package(nlohmann_json 3.2.0 REQUIRED)
 
-set(_HEADERS optimizer.h table_estimator.h lattice.h atom.h)
-set(_SOURCES optimizer.cpp table_estimator.cpp lattice.cpp atom.cpp matrix3D.hpp vector3D.hpp)
+set(_HEADERS optimizer.h table_estimator.h lattice.h atom.h matrix3D.hpp vector3D.hpp)
+set(_SOURCES optimizer.cpp table_estimator.cpp lattice.cpp atom.cpp)
 
 add_library(atomic_lib ${_HEADERS} ${_SOURCES})
 target_link_libraries(atomic_lib PUBLIC OpenMP::OpenMP_CXX)
